@@ -64,7 +64,7 @@ jobs:
           git add Themes
           git diff --cached --quiet && exit 0
           git commit -m "Add missing symbols to theme fonts"
-          git pull --rebase
+          git pull --rebase --autostash
           git push
 
       - name: Upload to Release
