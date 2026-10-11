@@ -1,0 +1,82 @@
+{
+    "name": "NeoNET MetaLink model 2056",
+    "author": "Welblade",
+    "description": "Another cyberpunk fantasy theme",
+    "batteryPercentage": {
+        "color": "#FFFFFF",
+        "font": "ArimoNerdFont-Regular.ttf",
+        "size": 28
+    },
+    "title": {
+        "font": "HeavyDataNerdFont-Regular.ttf",
+        "size": 32,
+        "color": "#ffbb3d"
+    },
+    "hint": {
+        "font": "ArimoNerdFont-Regular.ttf",
+        "size": 28,
+        "color": "#FFFFFF"
+    },
+    "currentpage": {
+        "font": "ArimoNerdFont-Regular.ttf",
+        "size": 32,
+        "color": "#FFFFFF"
+    },
+    "total": {
+        "font": "ArimoNerdFont-Regular.ttf",
+        "size": 32,
+        "color": "#ffbb3d"
+    },
+    "grid": {
+        "font": "ArimoNerdFont-Regular.ttf",
+        "grid1x4": 32,
+        "grid3x4": 28,
+        "color": "#FFFFFF",
+        "selectedcolor": "#ffbb3d"
+    },
+    "list": {
+        "font": "ArimoNerdFont-Regular.ttf",
+        "size": 28,
+        "color": "#FFFFFF",
+        "selectedcolor": "#ffbb3d"
+    },
+    "topBarFontSize": 34,
+    "descListFontSize": 32,
+    "indexSelectedFontSize": 32,
+    "indexTotalSize": 32,
+    "useTextForLineHeight": false,
+    "gameSelectionViewType": "GRID",
+    "gridMultiRowSelBgResizePadWidth": 24,
+    "gridMultiRowSelBgResizePadHeight": 24,
+    "gridMultiRowImageYOffset": 32,
+    "screensaver": {
+        "bgImage": "/mnt/SDCARD/themes/neonet-metalink-model-2056/screensaver.png",
+        "screensaverTimeoutSec": 70,
+        "widgets": [
+            {
+                "type": "clock",
+                "x": 0.5,
+                "y": 0.21,
+                "fontSize": 120,
+                "color": "#8cf1ff",
+                "font": "HeavyDataNerdFont-Regular.ttf",
+                "enabled": true
+            },
+            {
+                "type": "date",
+                "x": 0.5,
+                "y": 0.38,
+                "fontSize": 24,
+                "color": "#FF8DC6"
+            },
+            {
+                "type": "battery",
+                "x": 0.5,
+                "y": 0.92,
+                "fontSize": 48,
+                "color": "#82FF7B",
+                "style": "bar"
+            }
+        ]
+    }
+}
