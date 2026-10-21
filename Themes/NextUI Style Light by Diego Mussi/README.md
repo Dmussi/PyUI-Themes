@@ -4,24 +4,18 @@ The light (inverted) version of NextUI Style: off-white background, near-black t
 one flat text list with a rounded highlight, box art (or the system's icon) on the
 right, and pill-shaped status and button hints. Works at every resolution spruce supports.
 
-## Pick any accent colour: the Accent Color app
+## Pick any accent colour
 
-The theme ships with a black highlight. The included **Accent Color** app recolours it to any
-colour, right on the device: RGB sliders, a hex code (on-screen keyboard), or presets,
-with a live preview. It recolours the highlight, button hints, volume bar, keyboard
-keys and the in-game menu (`igm.json`) in a few seconds, then spruce reloads the menu.
+The theme ships with a black highlight. With spruceOS's **Accent Color** app (Apps → Accent Color)
+you can recolour it to any colour right on the device: RGB sliders, a hex code
+(on-screen keyboard) or presets, with a live preview. It recolours the highlight,
+button hints, volume bar, keyboard keys and the in-game menu (`igm.json`), then spruce
+reloads the menu.
 
-**Install the app (once):** copy the `AccentColor app` folder from this theme to
-`/App/AccentColor` on your SD card. It then shows up in **Apps → Accent Color**.
-
-Controls: Up/Down choose R, G, B, HEX or PRESET · Left/Right adjust (hold to speed
-up) · L1/R1 ±16 · A on HEX types a code · A applies · B cancels.
-
-How it works: every accent-dependent image also ships as a small template in
-`accent/` (rendered with probe colours at build time). The app recolours those with
-plain Python (no Pillow needed) and only touches the accent keys in `config*.json`
-and `igm.json`, so other theme settings you changed are kept. Build scripts are in
-`source/`.
+The `accent/` folder holds the templates the app uses (every accent-dependent image,
+plus the theme's palette). The app only touches the accent keys in `config*.json` and
+`igm.json`, so other theme settings you changed are kept. Without the app, the theme
+works normally in its default colour.
 
 ## Notes
 
@@ -29,14 +23,14 @@ and `igm.json`, so other theme settings you changed are kept. Build scripts are 
   keyboard's text, and dark text keeps typing readable with every accent.
 - On dark accents the large highlight / keyboard text box uses a lighter shade of
   the accent, so both black and white text stay readable.
-- The Accent Color app is the same one as in **NextUI Style**; it detects which
-  version is active. Build with `NEXTUI_MODE=light` (see `source/`).
+- The Accent Color app works with both NextUI Style and NextUI Style Light; it
+  detects which version is active.
 - This theme ships its own `igm.json`, so while it is active the
   "RA: in-game menu colors" setting has no visible effect.
 
 ## Credits
 
-- **Theme design and Accent Color app:** Diego Mussi ([@Dmussi](https://github.com/Dmussi)),
+- **Theme design:** Diego Mussi ([@Dmussi](https://github.com/Dmussi)),
   built with the help of Claude (Anthropic).
 - **Inspiration:** [NextUI](https://github.com/LoveRetro/NextUI) and
   [MinUI](https://github.com/shauninman/MinUI) by Shaun Inman. Layout inspiration only;

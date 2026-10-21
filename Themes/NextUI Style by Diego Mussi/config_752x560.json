@@ -1,7 +1,7 @@
 {
     "name": "NextUI Style",
     "author": "Diego Mussi",
-    "description": "NextUI-inspired: black list layout, rounded font, box art on the right. Any accent colour via the included Accent Color app.",
+    "description": "NextUI-inspired: black list layout, rounded font, box art on the right. Any accent colour via spruceOS's Accent Color app.",
     "batteryPercentage": {
         "color": "#FFFFFF",
         "font": "nextui.ttf",

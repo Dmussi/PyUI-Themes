@@ -1,7 +1,0 @@
-{
-  "label": "Accent Color",
-  "icon": "icon.png",
-  "launch": "launch.sh",
-  "description": "Pick any accent color for the NextUI Style theme",
-  "hideInSimpleMode": false
-}
