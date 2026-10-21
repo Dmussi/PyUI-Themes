@@ -74,7 +74,10 @@ def main():
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "accent_app"))
     import accent_engine as eng
 
-    manifest = {"templates": {}, "midtone": MIDTONE_FILES}
+    hexc = lambda c: "#%02X%02X%02X" % tuple(c[:3])
+    manifest = {"templates": {}, "midtone": MIDTONE_FILES, "mode": bt.MODE,
+                "palette": {"bg": bt.BG_HEX, "ink": bt.INK_HEX, "sub": bt.SUB_HEX,
+                            "card": hexc(bt.PILL), "track": hexc(bt.TRACK)}}
     tmp = tempfile.mkdtemp()
     black, white = (0, 0, 0), (255, 255, 255)
     for W, H in bt.RESOLUTIONS:
@@ -111,7 +114,7 @@ def main():
             ref = os.path.join(tmp, "ref", hexv[1:], f"{W}x{H}")
             skin = render_skin(ref, W, H)
             for f in manifest["templates"][skin]:
-                slot = eng.midtone(acc) if f in MIDTONE_FILES else acc
+                slot = eng.midtone(acc, mode=bt.MODE) if f in MIDTONE_FILES else acc
                 png = eng.render_tpl(os.path.join(THEME, "accent", skin, f + ".tpl"), slot, sel)
                 got = np.asarray(Image.open(__import__("io").BytesIO(png)).convert("RGBA"), dtype=np.int32)
                 exp = np.asarray(Image.open(os.path.join(ref, f)).convert("RGBA"), dtype=np.int32)

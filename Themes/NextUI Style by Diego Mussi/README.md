@@ -25,6 +25,8 @@ and `igm.json`, so other theme settings you changed are kept. Build scripts are 
 
 ## Notes
 
+- Prefer light? See **NextUI Style Light**, the inverted version; the same Accent
+  Color app works with both.
 - The selected top tab is white: PyUI uses the same colour for the on-screen
   keyboard's text, and white keeps typing readable with every accent.
 - On light accents the large highlight / keyboard text box uses a deeper shade of

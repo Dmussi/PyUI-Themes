@@ -44,10 +44,22 @@ def _rel_lum(c):
     return 0.2126 * ch(c[0]) + 0.7152 * ch(c[1]) + 0.0722 * ch(c[2])
 
 
-def midtone(c, target=0.18):
-    """Same as the theme builder: darken light accents to mid luminance (large highlight /
-    keyboard text box), so both black and white text read on it."""
+def midtone(c, target=0.18, mode="dark"):
+    """Same as the theme builder: bring the accent to mid luminance for the large highlight /
+    keyboard text box, so both black and white text read on it. Dark themes darken light
+    accents; light themes (dark keyboard text) lighten dark accents instead."""
     c = tuple(c[:3])
+    if mode == "light":
+        if _rel_lum(c) >= target:
+            return c
+        lo, hi = 0.0, 1.0
+        for _ in range(24):
+            m = (lo + hi) / 2
+            if _rel_lum(tuple(v + (255 - v) * m for v in c)) < target:
+                lo = m
+            else:
+                hi = m
+        return tuple(int(round(v + (255 - v) * hi)) for v in c)
     if _rel_lum(c) <= target:
         return c
     lo, hi = 0.0, 1.0
@@ -133,6 +145,20 @@ def current_accent(theme_dir):
         return (255, 255, 255)
 
 
+def theme_palette(theme_dir):
+    """Colours the picker uses for its own screen (dark or light theme)."""
+    dark = {"mode": "dark", "bg": "#000000", "ink": "#FFFFFF", "sub": "#8A8A8A",
+            "card": "#222428", "track": "#3C3E46"}
+    try:
+        with open(os.path.join(theme_dir, "accent", "manifest.json"), "r", encoding="utf-8") as fh:
+            m = json.load(fh)
+        dark.update(m.get("palette", {}))
+        dark["mode"] = m.get("mode", "dark")
+    except (OSError, ValueError):
+        pass
+    return dark
+
+
 def template_folders(theme_dir):
     with open(os.path.join(theme_dir, "accent", "manifest.json"), "r", encoding="utf-8") as fh:
         return list(json.load(fh)["templates"])
@@ -150,7 +176,8 @@ def apply_accent(theme_dir, acc, folders=None, progress=None):
     with open(os.path.join(theme_dir, "accent", "manifest.json"), "r", encoding="utf-8") as fh:
         manifest = json.load(fh)
 
-    mid = midtone(acc)
+    mid = midtone(acc, mode=manifest.get("mode", "dark"))
+    ink_hex = theme_palette(theme_dir)["ink"]   # white on the dark version, near-black on light
     use_mid = set(manifest.get("midtone", []))
     jobs = [(folder, name) for folder, names in manifest["templates"].items()
             if folders is None or folder in folders for name in names]
@@ -162,7 +189,7 @@ def apply_accent(theme_dir, acc, folders=None, progress=None):
             progress(i + 1, len(jobs))
 
     def patch_config(d):
-        d.setdefault("grid", {})["selectedcolor"] = "#FFFFFF"  # selected tab + keyboard text
+        d.setdefault("grid", {})["selectedcolor"] = ink_hex  # selected tab + keyboard text
         d.setdefault("list", {})["selectedcolor"] = sel_hex   # text on the highlight
 
     for f in os.listdir(theme_dir):

@@ -37,7 +37,15 @@ PRESETS = [("White", "#FFFFFF"), ("NextUI Red", "#9B2257"), ("Red", "#E5484D"), 
            ("Yellow", "#F5C518"), ("Green", "#3DBE6B"), ("Teal", "#1FB5A8"), ("Blue", "#2F7DE1"),
            ("Purple", "#8E5BE8"), ("Pink", "#FF4FA3")]
 ROWS = ["R", "G", "B", "HEX", "PRESET"]
-WHITE, GRAY, DARK, TRACK = (255, 255, 255), (138, 138, 138), (34, 36, 40), (60, 62, 70)
+# screen colours; replaced from the theme's palette (dark or light version) at start-up
+WHITE, GRAY, DARK, TRACK, BG = (255, 255, 255), (138, 138, 138), (34, 36, 40), (60, 62, 70), (0, 0, 0)
+
+
+def set_palette(pal):
+    """WHITE = main text/ink, GRAY = secondary, DARK = preview card, TRACK = slider track."""
+    global WHITE, GRAY, DARK, TRACK, BG
+    WHITE, GRAY = eng.parse_hex(pal["ink"]), eng.parse_hex(pal["sub"])
+    DARK, TRACK, BG = eng.parse_hex(pal["card"]), eng.parse_hex(pal["track"]), eng.parse_hex(pal["bg"])
 CHANNEL = [(230, 70, 70), (70, 200, 110), (70, 140, 240)]
 
 
@@ -66,6 +74,7 @@ def init():
 class Picker:
     def __init__(self, theme_dir):
         self.theme_dir = theme_dir
+        set_palette(eng.theme_palette(theme_dir))
         self.saved = eng.current_accent(theme_dir)
         self.rgb = list(self.saved)
         self.row = 0
@@ -85,7 +94,7 @@ class Picker:
         sel = eng.selected_text_color(acc)
         bar_h = Display.get_top_bar_height()
         # cover the Games/Apps/Settings tabs spruce draws in the top bar; this screen has its own title
-        Display.render_box((0, 0, 0), 0, 0, W - px(150), bar_h)
+        Display.render_box(BG, 0, 0, W - px(150), bar_h)
         Display.render_text("ACCENT COLOR", px(20), bar_h // 2, WHITE, FontPurpose.DESCRIPTIVE_LIST_TITLE, RenderMode.MIDDLE_LEFT_ALIGNED)
         top = bar_h + px(4)
         row_h = px(54)

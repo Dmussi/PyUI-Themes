@@ -20,6 +20,26 @@ WHITE = (255, 255, 255, 255)
 PILL = (34, 36, 40, 255)        # dark status / hint pill
 PANEL = (24, 24, 26, 245)       # popup panels
 GRAY = (130, 130, 130, 255)     # unselected icons
+
+# --- palette: NEXTUI_MODE=light builds the inverted (light) version ---
+MODE = os.environ.get("NEXTUI_MODE", "dark")
+if MODE == "light":
+    BG = (244, 244, 245, 255)       # background
+    INK = (26, 26, 28, 255)         # text and glyphs
+    PILL = (222, 223, 227, 255)     # status / hint pills, keys
+    PANEL = (232, 233, 236, 250)    # popup panels
+    GRAY = (122, 122, 126, 255)
+    TRACK = (196, 197, 202, 255)    # volume bar track
+    DIM = (244, 244, 245, 215)      # behind full-screen menus
+    SUB_HEX = "#7A7A7E"             # secondary text (unselected tabs, totals)
+else:
+    BG = BLACK
+    INK = WHITE
+    TRACK = (70, 72, 78, 255)
+    DIM = (0, 0, 0, 215)
+    SUB_HEX = "#8A8A8A"
+BG_HEX = "#%02X%02X%02X" % BG[:3]
+INK_HEX = "#%02X%02X%02X" % INK[:3]
 RED = (230, 70, 70, 255)
 ACCENT = tuple(int(ACCENT_HEX[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
 # black text on light accents, white text on dark ones
@@ -66,6 +86,18 @@ def midtone(c, target=0.18):
     Used for the large highlight, which spruce also uses as the keyboard's text box:
     the keyboard draws white text on it, detailed lists draw black/white text on it."""
     c = tuple(c[:3])
+    if MODE == "light":
+        # keyboard text is dark here: lighten dark accents (mix with white) up to mid luminance
+        if _rel_lum(c) >= target:
+            return c + (255,)
+        lo, hi = 0.0, 1.0
+        for _ in range(24):
+            m = (lo + hi) / 2
+            if _rel_lum(tuple(v + (255 - v) * m for v in c)) < target:
+                lo = m
+            else:
+                hi = m
+        return tuple(int(round(v + (255 - v) * hi)) for v in c) + (255,)
     if _rel_lum(c) <= target:
         return c + (255,)
     lo, hi = 0.0, 1.0
@@ -124,11 +156,11 @@ def battery(w, h, frac, charging=False):
     nub = max(2, round(w * 0.08))
     body = (0, 0, w - nub - 1, h - 1)
     stroke = max(2, round(h * 0.12))
-    rrect(d, body, h * 0.22, outline=WHITE, width=stroke)
-    d.rectangle([(w - nub) * SS, h * 0.3 * SS, w * SS, h * 0.7 * SS], fill=WHITE)
+    rrect(d, body, h * 0.22, outline=INK, width=stroke)
+    d.rectangle([(w - nub) * SS, h * 0.3 * SS, w * SS, h * 0.7 * SS], fill=INK)
     pad = stroke * 2
     inner_w = (w - nub - 1) - pad * 2
-    color = RED if frac <= 0.2 and not charging else WHITE
+    color = RED if frac <= 0.2 and not charging else INK
     if frac > 0:
         rrect(d, (pad, pad, pad + max(2, inner_w * frac), h - 1 - pad),
               h * 0.08, fill=color)
@@ -137,8 +169,8 @@ def battery(w, h, frac, charging=False):
         s = h * 0.42
         bolt = [(cx + s * .15, cy - s), (cx - s * .55, cy + s * .12), (cx - s * .02, cy + s * .12),
                 (cx - s * .15, cy + s), (cx + s * .55, cy - s * .12), (cx + s * .02, cy - s * .12)]
-        d.polygon([(x * SS, y * SS) for x, y in bolt], fill=BLACK if frac > 0.5 else WHITE,
-                  outline=WHITE if frac > 0.5 else None)
+        d.polygon([(x * SS, y * SS) for x, y in bolt], fill=BG if frac > 0.5 else INK,
+                  outline=INK if frac > 0.5 else None)
     return done(im, w, h)
 
 
@@ -153,7 +185,7 @@ def volume_icon(w, h, level):
     sx, cy, s = h * 0.45, h / 2, h * 0.22
     spk = [(sx, cy - s * .5), (sx + s * .6, cy - s * .5), (sx + s * 1.3, cy - s * 1.1),
            (sx + s * 1.3, cy + s * 1.1), (sx + s * .6, cy + s * .5), (sx, cy + s * .5)]
-    d.polygon([(x * SS, y * SS) for x, y in spk], fill=WHITE if level else GRAY)
+    d.polygon([(x * SS, y * SS) for x, y in spk], fill=INK if level else GRAY)
     if level == 0:
         x0 = sx + s * 1.8
         d.line([(x0 * SS, (cy - s * .6) * SS), ((x0 + s) * SS, (cy + s * .6) * SS)], fill=GRAY, width=int(h * .07 * SS))
@@ -161,7 +193,7 @@ def volume_icon(w, h, level):
     # bar
     bx0, bx1 = h * 1.25, w - h * 0.5
     bh = h * 0.16
-    rrect(d, (bx0, cy - bh / 2, bx1, cy + bh / 2), bh / 2, fill=(70, 72, 78, 255))
+    rrect(d, (bx0, cy - bh / 2, bx1, cy + bh / 2), bh / 2, fill=TRACK)
     if level:
         rrect(d, (bx0, cy - bh / 2, bx0 + (bx1 - bx0) * level / 20, cy + bh / 2), bh / 2, fill=ACCENT)
     return done(im, w + gap, h)
@@ -189,7 +221,7 @@ def hint_strip(w, h, s, hints, align="right"):
         rrect(d, (x, cy - circ / 2, x + circ, cy + circ / 2), circ / 2, fill=ACCENT)  # accent circle, like NextUI
         kw = text_w(f_btn, key) / SS
         draw_text_center_y(d, (x + (circ - kw) / 2) * SS, cy * SS, key, f_btn, SEL_TEXT)
-        draw_text_center_y(d, (x + circ + gap_in) * SS, cy * SS, lbl, f_lbl, WHITE)
+        draw_text_center_y(d, (x + circ + gap_in) * SS, cy * SS, lbl, f_lbl, INK)
         x += pw_i + gap_pair
     return done(im, w, h)
 
@@ -246,7 +278,7 @@ def restyle_stock(src_dir, dst_dir, s):
         w, h = im.size
         if f in PANELISH:
             if f in FULLSCREEN_DIM:
-                out = Image.new("RGBA", (w, h), (0, 0, 0, 215))
+                out = Image.new("RGBA", (w, h), DIM)
             elif f in WHITE_PANELS:
                 out = panel(w, h, min(w, h) / 2, ACCENT)
             elif f in OUTLINED_KEYS:
@@ -258,7 +290,7 @@ def restyle_stock(src_dir, dst_dir, s):
         elif f.endswith("-n.png") and f.startswith(("ic-", "nav-")):
             out = tint(im, GRAY)
         else:
-            out = tint(im, WHITE)
+            out = tint(im, INK)
         out.save(os.path.join(dst_dir, f), optimize=True)
 
 
@@ -272,8 +304,8 @@ def build_skin(skin_dir, W, H, stock_skin):
     bot_h = round(48 * s)
     row = round(54 * s)
 
-    sv("background.png", Image.new("RGBA", (W, H), BLACK))
-    sv("background-small.png", Image.new("RGBA", (W, H), BLACK))
+    sv("background.png", Image.new("RGBA", (W, H), BG))
+    sv("background-small.png", Image.new("RGBA", (W, H), BG))
 
     # --- selection pills (row height == pill height, like NextUI) ---
     # ends just before the right-hand image column (spruce crops the pill there),
@@ -391,16 +423,16 @@ def igm_config():
     return {
         "name": f"NextUI Style {VARIANT}",
         "colors": {
-            "dim_bg": "#000000E6",
+            "dim_bg": BG_HEX + "E6",
             "panel_bg": "#00000000",
             "selection": ACCENT_HEX + "FF",
             "accent": ACCENT_HEX + "FF",
-            "title_line": "#FFFFFF33",
-            "text": "#FFFFFFFF",
+            "title_line": INK_HEX + "33",
+            "text": INK_HEX + "FF",
             "text_selected": SEL_TEXT_HEX + "FF",
-            "text_title": "#8A8A8AFF",
+            "text_title": SUB_HEX + "FF",
             "text_shadow": "#00000000",
-            "battery": "#FFFFFFFF",
+            "battery": INK_HEX + "FF",
         },
         # no title row (NextUI has none); flat rows, no side bar, no shadows
         "layout": {"accent_bar": False, "shadow": False, "separator_h_px": 0, "title_h_pct": 0.0},
@@ -417,13 +449,13 @@ def config(W, H, s):
         "author": "Diego Mussi",
         "description": "Black, minimal, pill-highlight list theme in the spirit of NextUI/MinUI. "
                        "Icons restyled from the spruce SPRUCE theme (CC BY-NC 4.0); font M PLUS Rounded 1c (OFL).",
-        "batteryPercentage": {"color": "#FFFFFF", "font": f, "size": r(18)},
-        "title": {"font": f, "size": r(24), "color": "#FFFFFF"},
-        "hint": {"font": f, "size": r(18), "color": "#FFFFFF"},
-        "currentpage": {"font": f, "size": r(20), "color": "#FFFFFF"},
-        "total": {"font": f, "size": r(20), "color": "#8A8A8A"},
-        "grid": {"font": f, "grid1x4": r(24), "grid3x4": r(18), "color": "#8A8A8A", "selectedcolor": "#FFFFFF"},  # tabs + keyboard text: white reads everywhere
-        "list": {"font": f, "size": r(28), "color": "#FFFFFF", "selectedcolor": SEL_TEXT_HEX},
+        "batteryPercentage": {"color": INK_HEX, "font": f, "size": r(18)},
+        "title": {"font": f, "size": r(24), "color": INK_HEX},
+        "hint": {"font": f, "size": r(18), "color": INK_HEX},
+        "currentpage": {"font": f, "size": r(20), "color": INK_HEX},
+        "total": {"font": f, "size": r(20), "color": SUB_HEX},
+        "grid": {"font": f, "grid1x4": r(24), "grid3x4": r(18), "color": SUB_HEX, "selectedcolor": INK_HEX},  # tabs + keyboard text: ink colour reads everywhere
+        "list": {"font": f, "size": r(28), "color": INK_HEX, "selectedcolor": SEL_TEXT_HEX},
         "descListFontSize": r(24),
         "descriptionFontSize": r(18),
         "messageFontSize": r(24),
@@ -464,12 +496,12 @@ def config(W, H, s):
         "fullScreenGridGameMenuResizeType": "FIT",
 
         "screensaver": {
-            "bgColor": "#000000",
+            "bgColor": BG_HEX,
             "screensaverTimeoutSec": 60,
             "widgets": [
-                {"type": "clock", "x": 0.5, "y": 0.42, "fontSize": r(82), "color": "#FFFFFF", "enabled": True, "font": f},
-                {"type": "date", "x": 0.5, "y": 0.58, "fontSize": r(22), "color": "#8A8A8A"},
-                {"type": "battery", "x": 0.5, "y": 0.7, "fontSize": r(18), "color": "#FFFFFF"},
+                {"type": "clock", "x": 0.5, "y": 0.42, "fontSize": r(82), "color": INK_HEX, "enabled": True, "font": f},
+                {"type": "date", "x": 0.5, "y": 0.58, "fontSize": r(22), "color": SUB_HEX},
+                {"type": "battery", "x": 0.5, "y": 0.7, "fontSize": r(18), "color": INK_HEX},
             ],
         },
     }
